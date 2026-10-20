@@ -1,0 +1,70 @@
+services ready
+===== 1. 环境版本 =====
+Python 3.10.12
+MySQL 8.0.46-0ubuntu0.22.04.4
+redis_version:6.0.16
+===== 2. init.sql 表与索引 =====
+Tables_in_habit_checkin
+check_item
+check_record
+user
+Table | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression
+check_record | 0 | PRIMARY | 1 | id | A | 0 | NULL | NULL |  | BTREE |  |  | YES | NULL
+check_record | 0 | uk_item_date | 1 | item_id | A | 0 | NULL | NULL |  | BTREE |  |  | YES | NULL
+check_record | 0 | uk_item_date | 2 | check_date | A | 0 | NULL | NULL |  | BTREE |  |  | YES | NULL
+===== 3. pytest（算法/时区单元测试）=====
+..................                                                       [100%]
+18 passed in 0.31s
+===== 4. smoke.py（六接口全链路）=====
+[1 登录] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'token': 'VbJBwQrGWNERAVSscd05GuWnBmSletuFxrFgEOYqUPQ', 'user': {'id': 1, 'username': 'demo'}}}
+[2 打卡项列表（初始）] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'server_date': '2026-10-20', 'items': [{'id': 1, 'item_name': '冒烟测试-1792471386', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:06'}, {'id': 2, 'item_name': '并发测试-1792471393', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:13'}, {'id': 3, 'item_name': '多日-昨日连续', 'current_streak': 4, 'max_streak': 0, 'today_checked': True, 'create_time': '2026-10-20 12:43:30'}, {'id': 4, 'item_name': '断签场景', 'current_streak': 0, 'max_streak': 0, 'today_checked': False, 'create_time': '2026-10-20 12:43:30'}, {'id': 5, 'item_name': '唯一索引-重复', 'current_streak': 1, 'max_streak': 0, 'today_checked': True, 'create_time': '2026-10-20 12:43:30'}, {'id': 6, 'item_name': '缓存证据', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:41'}, {'id': 7, 'item_name': 'E2E演示-1792471900605', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:51:42'}]}}
+[3 创建打卡项] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'id': 8, 'item_name': '冒烟测试-1792472057', 'current_streak': 0, 'max_streak': 0, 'today_checked': False, 'create_time': '2026-10-20 12:54:17'}}
+[4 今日打卡] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'item_id': 8, 'check_date': '2026-10-20', 'current_streak': 1, 'max_streak': 1, 'today_checked': True}}
+[5 重复打卡（预期 409）] HTTP 409 -> {'code': 409, 'msg': '今日已打卡', 'data': None}
+[6 列表（应显示已打卡与连续天数）] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'server_date': '2026-10-20', 'items': [{'id': 1, 'item_name': '冒烟测试-1792471386', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:06'}, {'id': 2, 'item_name': '并发测试-1792471393', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:13'}, {'id': 3, 'item_name': '多日-昨日连续', 'current_streak': 4, 'max_streak': 0, 'today_checked': True, 'create_time': '2026-10-20 12:43:30'}, {'id': 4, 'item_name': '断签场景', 'current_streak': 0, 'max_streak': 0, 'today_checked': False, 'create_time': '2026-10-20 12:43:30'}, {'id': 5, 'item_name': '唯一索引-重复', 'current_streak': 1, 'max_streak': 0, 'today_checked': True, 'create_time': '2026-10-20 12:43:30'}, {'id': 6, 'item_name': '缓存证据', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:43:41'}, {'id': 7, 'item_name': 'E2E演示-1792471900605', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:51:42'}, {'id': 8, 'item_name': '冒烟测试-1792472057', 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'create_time': '2026-10-20 12:54:17'}]}}
+[7 查询连续天数] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {'item_id': 8, 'current_streak': 1, 'max_streak': 1, 'today_checked': True, 'last_check_date': '2026-10-20'}}
+[8 退出登录] HTTP 200 -> {'code': 200, 'msg': 'success', 'data': {}}
+[9 登出后访问（预期 401）] HTTP 401 -> {'code': 401, 'msg': '未登录或Token已失效', 'data': None}
+[10 无 token 访问（预期 401）] HTTP 401 -> {'code': 401, 'msg': '未登录或Token已失效', 'data': None}
+SMOKE_ALL_PASSED steps=10
+===== 5. concurrency_check.py（20 并发）=====
+item_id=9 name=并发测试-1792472057
+status_codes=[200, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409, 409]
+success=1 conflict=19
+db_record_count=1
+CONCURRENCY_PASSED
+===== 6. Redis TTL / Cache Aside 证据 =====
+login token TTL: 604800
+打卡后 check:today:10:20261020 = 1, TTL=39941
+打卡后 streak:10 = '' (已删除), TTL=-2
+读回填后 streak:10 = {"streak": 1, "as_of": "2026-10-20"}, TTL=86400
+===== 7. 唯一索引兜底（重复插入应报 1062）=====
+ERROR 1062 (23000) at line 1: Duplicate entry '10-2026-10-20' for key 'check_record.uk_item_date'
+ERROR 1062 (23000) at line 1: Duplicate entry '10-2026-10-20' for key 'check_record.uk_item_date'
+===== 8. H5 构建 =====
+
+欢迎将web站点部署到uniCloud前端网页托管平台，高速、免费、安全、省心，详见：https://uniapp.dcloud.io/uniCloud/hosting
+DONE  Build complete.
+===== 9. 浏览器 E2E（Playwright，390x844）=====
+screenshot: 01-login.png
+login ok, url= http://127.0.0.1:5173/#/pages/index/index
+screenshot: 02-index-empty.png
+item created: E2E演示-1792472063844
+screenshot: 03-item-created.png
+check-in ok, streak= 1
+screenshot: 04-checked.png
+reload persistence ok: today_checked=true
+screenshot: 05-after-reload.png
+logout ok, back to login
+screenshot: 06-logout.png
+console_errors= []
+api_failed_requests= []
+E2E_ALL_PASSED item=E2E演示-1792472063844
+===== 10. 截图清单 =====
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/01-login.png
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/02-index-empty.png
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/03-item-created.png
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/04-checked.png
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/05-after-reload.png
+/sessions/funny-tender-lamport/mnt/outputs/habit-checkin/docs/screenshots/06-logout.png
+VERIFY_ALL_DONE
