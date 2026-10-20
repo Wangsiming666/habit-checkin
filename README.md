@@ -51,7 +51,8 @@ habit-checkin/
 │   └── vite.config.js
 └── docs/                     # 验收证据、日志、截图
 ```
-
+##
+[View Demo video](【2026-10-20 22-43-20】https://www.bilibili.com/video/BV1LcnK6bEcg?vd_source=66902c9bf26a37c7ac46b23c9a45ddd1)
 ## 5 分钟启动
 
 ### 1. 准备
