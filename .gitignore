@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# 环境变量（真实密钥绝不提交）
+.env
+backend/.env
+
+# Node / uni-app
+node_modules/
+dist/
+unpackage/
+.hbuilderx/
+
+# IDE / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 本地验证产物
+*.log

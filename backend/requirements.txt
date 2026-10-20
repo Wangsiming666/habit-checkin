@@ -1,0 +1,17 @@
+# 安装：pip install -r requirements.txt
+# 版本已锁定（与 Python 3.10+ 实测兼容）
+fastapi==0.150.0
+uvicorn[standard]==0.54.0
+SQLAlchemy[asyncio]==2.0.55
+aiomysql==0.3.2
+pydantic==2.14.1
+pydantic-settings==2.15.0
+redis==8.1.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1            # 必须锁 4.0.1：passlib 1.7.4 与 bcrypt>=4.1 不兼容
+python-dotenv==1.2.3
+tzdata==2026.3           # Windows 无系统时区库，zoneinfo 依赖
+cryptography==50.0.1     # MySQL 8 caching_sha2_password 认证依赖
+pytest==9.1.1
+pytest-asyncio==1.4.0
+httpx==0.28.1
