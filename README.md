@@ -72,6 +72,9 @@ cp backend/.env.example backend/.env
 ```bash
 docker compose up -d
 docker compose ps        # 等两个服务 healthy
+#有可能会出现端口占用backend.\env内默认端口号3306改为3307 docker-compose.yml内的ports：-"3307:3306"即可 
+#如果正常不用理会上面这条
+
 ```
 
 首次启动会自动执行 `backend/init.sql` 并创建演示账号 `demo / 123456`。重置数据：`docker compose down -v && docker compose up -d`。
@@ -95,6 +98,9 @@ uvicorn app.main:app --reload --port 8000
 
 ```bash
 cd frontend
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
 npm install
 npm run dev:h5
 ```
